@@ -1,0 +1,351 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Thêm đơn hàng{% endblock %}
+
+{% block extra_head %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Thêm đơn hàng mới</h2>
+    <form id="order-form" method="post" action="{% url 'add_order' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="order_date">Ngày đặt hàng</label>
+            <input type="datetime-local" class="form-control" id="order_date" name="order_date" value="{{ order.order_date|date:'Y-m-d\\TH:i' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="customer">Khách hàng</label>
+            <select class="form-control" id="customer" name="customer" required>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}" {% if order.customer.id == customer.id %}selected{% endif %}>{{ customer.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#addCustomerModal">Thêm khách hàng mới</button>
+            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#addProductModal">Thêm Sản Phẩm mới</button>
+        </div>
+
+        <table class="table table-bordered mt-4" id="order-line-table">
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã sp</th>
+                <th>Tên sp</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+                <th>Xoá sản phẩm</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for order_line in order_lines %}
+            <tr class="order-line">
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <select class="form-control product-select" name="product[]">
+                        {% for product in products %}
+                        <option value="{{ product.id }}" {% if order_line.product.id == product.id %}selected{% endif %}>{{ product.id }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control product-name-select" name="product_name[]">
+                        {% for product in products %}
+                        <option value="{{ product.id }}" {% if order_line.product.id == product.id %}selected{% endif %}>{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="number" class="form-control quantity" name="quantity[]" value="{{ order_line.quantity }}" min="1" required></td>
+                <td><input type="number" class="form-control unit_price" name="unit_price[]" value="{{ order_line.unit_price }}" readonly></td>
+                <td class="line-amount">{{ order_line.line_amount }}</td>
+                <td><button type="button" class="btn btn-danger btn-remove-order-line">X</button></td>
+            </tr>
+            {% endfor %}
+            <tr id="total-row">
+                <td colspan="5" style="text-align: right;"><strong>Tổng giá trị đơn hàng:</strong></td>
+                <td id="total-amount" colspan="2">0</td>
+            </tr>
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" id="btn-add-order-line">Thêm sản phẩm vào đơn</button>
+        <button type="submit" class="btn btn-success mt-3">Lưu đơn hàng</button>
+    </form>
+</div>
+
+<!-- Add Customer Modal -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1" role="dialog" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="addCustomerForm">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCustomerModalLabel">Thêm khách hàng mới</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="new_customer_name">Tên:</label>
+                        <input type="text" class="form-control" id="new_customer_name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_customer_phone">Điện thoại:</label>
+                        <input type="text" class="form-control" id="new_customer_phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="new_customer_address">Địa chỉ:</label>
+                        <textarea class="form-control" id="new_customer_address" name="address"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_customer_segment">Phân khúc:</label>
+                        <select class="form-control" id="new_customer_segment" name="segment" required>
+                            {% for segment in segments %}
+                            <option value="{{ segment.id }}">{{ segment.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu khách hàng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Thêm Sản Phẩm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <div class="form-group">
+                        <label for="productId">ID Sản Phẩm</label>
+                        <input type="text" class="form-control" id="productId" name="id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Tên Sản Phẩm</label>
+                        <input type="text" class="form-control" id="productName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productSalePrice">Đơn Giá Bán</label>
+                        <input type="number" class="form-control" id="productSalePrice" name="sale_price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Loại Sản Phẩm</label>
+                        <select class="form-control" id="productCategory" name="category_id" required>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        let productIndex = {{ order_lines|length }};
+        let productData = {};
+
+        // Populate product data
+        {% for product in products %}
+        productData["{{ product.id }}"] = {
+            'name': "{{ product.name }}",
+            'sale_price': {{ product.sale_price }}
+        };
+        {% endfor %}
+        // Function to calculate total amount
+        function calculateTotal() {
+            let total = 0;
+            $('.line-amount').each(function() {
+                total += parseFloat($(this).text());
+            });
+            $('#total-amount').text(total.toFixed(2));
+        }
+
+        // Calculate initial total on page load
+        calculateTotal();
+
+        $('#btn-add-order-line').click(function() {
+            productIndex++;
+            let newRow = `
+            <tr class="order-line">
+                <td>${productIndex}</td>
+                <td>
+                    <select class="form-control product-select" name="product[]">
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.id }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control product-name-select" name="product_name[]">
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="number" class="form-control quantity" name="quantity[]" value="1" min="1" required></td>
+                <td><input type="number" class="form-control unit_price" name="unit_price[]" value="" readonly></td>
+                <td class="line-amount">0</td>
+                <td><button type="button" class="btn btn-danger btn-remove-order-line">X</button></td>
+            </tr>`;
+            $('#order-line-table tbody').append(newRow);
+            calculateTotal();
+        });
+        
+        $('#order-line-table').on('change', '.product-select, .product-name-select', function() {
+            let $row = $(this).closest('tr');
+            let productId = $(this).val();
+
+            // Đồng bộ hai dropdown list
+            $row.find('.product-select').val(productId);
+            $row.find('.product-name-select').val(productId);
+
+            // Fetch product information and update unit price
+            if (productData[productId]) {
+                let salePrice = productData[productId]['sale_price'];
+                $row.find('.unit_price').val(salePrice);
+                let quantity = parseInt($row.find('.quantity').val());
+                let lineAmount = quantity * salePrice;
+                $row.find('.line-amount').text(lineAmount.toFixed(2));
+                calculateTotal();
+            } else {
+                alert('Không tìm thấy thông tin sản phẩm');
+            }
+        });
+
+        $('#order-line-table').on('change', '.quantity', function() {
+            let $row = $(this).closest('tr');
+            let quantity = parseInt($(this).val());
+            let unitPrice = parseFloat($row.find('.unit_price').val());
+            let lineAmount = quantity * unitPrice;
+            $row.find('.line-amount').text(lineAmount.toFixed(2));
+        });
+
+        $('#order-line-table').on('click', '.btn-remove-order-line', function() {
+            $(this).closest('tr').remove();
+            productIndex--;
+        });
+
+        $('#orderForm').submit(function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+
+            fetch("{% url 'add_order' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '{% url 'index' %}';
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Lỗi:', error));
+        });
+
+        // Add new customer form submission
+        $('#addCustomerForm').submit(function(event) {
+            event.preventDefault();
+            var formData = {
+                'name': $('#new_customer_name').val(),
+                'phone': $('#new_customer_phone').val(),
+                'address': $('#new_customer_address').val(),
+                'segment': $('#new_customer_segment').val()
+            };
+
+            fetch("{% url 'add_customer' %}", {
+                method: 'POST',
+                body: JSON.stringify(formData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    var newCustomer = new Option(data.customer.name, data.customer.id, true, true);
+                    $('#customer').append(newCustomer).val(data.customer.id).trigger('change');
+                    $('#addCustomerModal').modal('hide');
+                    alert('Thêm khách hàng thành công!');
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alert('Lỗi khi thêm khách hàng. Vui lòng thử lại.');
+            });
+        });
+
+        // Add new product form submission
+        $('#addProductForm').submit(function(event) {
+            event.preventDefault();
+            const formData = {
+                id: $('#productId').val(),
+                name: $('#productName').val(),
+                sale_price: $('#productSalePrice').val(),
+                category_id: $('#productCategory').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            };
+
+            fetch("{% url 'add_product' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': formData.csrfmiddlewaretoken
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add new product to productData
+                    productData[data.product.id] = {
+                        'name': data.product.name,
+                        'sale_price': data.product.sale_price
+                    };
+
+                    // Add new product options to dropdowns
+                    let newOptionId = `<option value="${data.product.id}">${data.product.id}</option>`;
+                    let newOptionName = `<option value="${data.product.id}">${data.product.name}</option>`;
+                    $('.product-select').append(newOptionId);
+                    $('.product-name-select').append(newOptionName);
+
+                    $('#addProductModal').modal('hide');
+                    $('#addProductForm')[0].reset();
+                } else {
+                    alert(data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+{% endblock %}

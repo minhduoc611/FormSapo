@@ -1,0 +1,120 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Danh Sách Sản Phẩm{% endblock %}
+
+{% block extra_head %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Danh Sách Sản Phẩm</h1>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal">
+            Thêm Sản Phẩm
+        </button>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID Sản phẩm</th>
+                <th>Tên Sản Phẩm</th>
+                <th>Đơn Giá Bán</th>
+                <th>Loại sản phẩm</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+            {% for product in products %}
+            <tr data-product-id="{{ product.id }}" data-sale-price="{{ product.sale_price }}">
+                <td>{{ product.id }}</td>
+                <td><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></td>
+                <td>{{ product.sale_price }}</td>
+                <td>{{ product.category.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Thêm Sản Phẩm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <div class="form-group">
+                        <label for="productId">ID Sản Phẩm</label>
+                        <input type="text" class="form-control" id="productId" name="id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Tên Sản Phẩm</label>
+                        <input type="text" class="form-control" id="productName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productSalePrice">Đơn Giá Bán</label>
+                        <input type="number" class="form-control" id="productSalePrice" name="sale_price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Loại Sản Phẩm</label>
+                        <select class="form-control" id="productCategory" name="category_id" required>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#addProductForm').on('submit', function(event) {
+            event.preventDefault();
+            const formData = {
+                id: $('#productId').val(),
+                name: $('#productName').val(),
+                sale_price: $('#productSalePrice').val(),
+                category_id: $('#productCategory').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            };
+
+            fetch("{% url 'add_product' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': formData.csrfmiddlewaretoken
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#productTableBody').append(
+                        `<tr data-product-id="${data.product.id}" data-sale-price="${data.product.sale_price}">
+                            <td>${data.product.id}</td>
+                            <td><a href="/product/${data.product.id}/">${data.product.name}</a></td>
+                            <td>${data.product.sale_price}</td>
+                            <td>${data.product.category_name}</td>
+                        </tr>`
+                    );
+                    $('#addProductModal').modal('hide');
+                    $('#addProductForm')[0].reset();
+                } else {
+                    alert(data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+{% endblock %}

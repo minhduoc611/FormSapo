@@ -1,0 +1,26 @@
+<!-- templates/your_app/add_orderline.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Thêm Order Line{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="mb-4">Thêm Order Line Mới</h1>
+    <form method="post" class="needs-validation" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_order">Order</label>
+        {{ form.order }}
+      </div>
+      <div class="form-group">
+        <label for="id_product">Product</label>
+        {{ form.product }}
+      </div>
+      <div class="form-group">
+        <label for="id_quantity">Quantity</label>
+        {{ form.quantity }}
+      </div>
+      <button type="submit" class="btn btn-primary">Thêm Order Line</button>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Home - Minh Duoc{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Chào mừng, Bắt đầu sử dụng phần mềm Sapo ngay nào!</h1>
+    <hr class="my-4">
+    <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+</div>
+
+<a class="btn btn-primary" href="{% url 'upload_order_file' %}">Tải lên dữ liệu đơn hàng</a>
+
+<div class="mt-5">
+    <h2>Thống kê tổng quan</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Thống kê</th>
+                <th scope="col">Số lượng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Tổng số đơn hàng</td>
+                <td>{{ total_orders }}</td>
+            </tr>
+            <tr>
+                <td>Số khách hàng</td>
+                <td>{{ total_customers }}</td>
+            </tr>
+            <tr>
+                <td>Tổng doanh thu</td>
+                <td>{{ total_revenue|floatformat:2 }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

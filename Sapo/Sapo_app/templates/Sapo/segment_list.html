@@ -1,0 +1,105 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Nhóm khách hàng{% endblock %}
+
+{% block extra_head %}
+<!-- Add this to include jQuery -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Danh sách Nhóm khách hàng</h1>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSegmentModal">
+            Thêm Nhóm khách hàng
+        </button>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Mô tả</th>
+            </tr>
+        </thead>
+        <tbody id="segmentTableBody">
+            {% for segment in segments %}
+            <tr>
+                <td>{{ segment.id }}</td>
+                <td>{{ segment.description }}</td>
+            </tr>
+            {% empty %}
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addSegmentModal" tabindex="-1" role="dialog" aria-labelledby="addSegmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSegmentModalLabel">Thêm Nhóm khách hàng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addSegmentForm">
+                    <div class="form-group">
+                        <label for="segmentId">ID</label>
+                        <input type="text" class="form-control" id="segmentId" name="id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="segmentDescription">Mô tả</label>
+                        <input type="text" class="form-control" id="segmentDescription" name="description" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#addSegmentForm').on('submit', function(event) {
+            event.preventDefault();
+            const formData = {
+                id: $('#segmentId').val(),
+                description: $('#segmentDescription').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            };
+
+            fetch("{% url 'add_segment' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': formData.csrfmiddlewaretoken
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#segmentTableBody').append(
+                        `<tr>
+                            <td>${data.segment.id}</td>
+                            <td>${data.segment.description}</td>
+                        </tr>`
+                    );
+                    $('#addSegmentModal').modal('hide');
+                    $('#addSegmentForm')[0].reset();
+                } else {
+                    alert(data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Customer Detail - {{ customer.name }}{% endblock %}
+
+{% block content %}
+<h2>Customer Details</h2>
+<ul>
+    <li><strong>ID:</strong> {{ customer.id }}</li>
+    <li><strong>Name:</strong> {{ customer.name }}</li>
+    <li><strong>Phone:</strong> {{ customer.phone }}</li>
+    <li><strong>Address:</strong> {{ customer.address }}</li>
+    <li><strong>Segment ID:</strong> {{ customer.segment.id }}</li>
+    <li><strong>Segment Description:</strong> {{ customer.segment.description }}</li>
+</ul>
+
+<h3>Orders</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Total Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td><a href="{% url 'order_detail' order.id %}">{{ order.id }}</a></td>
+            <td>{{ order.order_date }}</td>
+            <td>{{ order.total_amount }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Total Spent</h3>
+<p>{{ total_spent }}</p>
+{% endblock %}

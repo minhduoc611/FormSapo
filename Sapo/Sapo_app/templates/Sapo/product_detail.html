@@ -1,0 +1,38 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Product Detail - {{ product.name }}{% endblock %}
+
+{% block content %}
+<h2>Product Details</h2>
+<ul>
+    <li><strong>ID:</strong> {{ product.id }}</li>
+    <li><strong>Name:</strong> {{ product.name }}</li>
+    <li><strong>Category ID:</strong> {{ product.category.id }}</li>
+    <li><strong>Category Name:</strong> {{ product.category.name }}</li>
+    <li><strong>Sale Price:</strong> {{ product.sale_price}} </li>
+</ul>
+
+<h3>Những khách hàng đã mua sản phẩm này</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Customer ID</th>
+            <th>Customer Name</th>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order_line in order_lines %}
+        <tr>
+            <td><a href="{% url 'customer_detail' customer_id=order_line.order.customer.id %}">{{ order_line.order.customer.id }}</a></td>
+            <td><a href="{% url 'customer_detail' customer_id=order_line.order.customer.id %}">{{ order_line.order.customer.name }}</a></td>
+            <td><a href="{% url 'order_detail' order_id=order_line.order.id %}">{{ order_line.order.id }}</a></td>
+            <td>{{ order_line.order.order_date }}</td>
+            <td>{{ order_line.quantity }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

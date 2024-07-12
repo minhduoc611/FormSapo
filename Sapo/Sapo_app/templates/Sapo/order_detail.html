@@ -1,0 +1,36 @@
+<!-- order_detail.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Order Detail{% endblock %}
+
+{% block content %}
+<h2>Order Detail: {{ order.id }}</h2>
+<p><strong>Customer:</strong> {{ order.customer.name }} ({{ order.customer.id }})</p>
+<p><strong>Order Date:</strong> {{ order.order_date }}</p>
+<p><strong>Segment:</strong> {{ order.customer.segment }}</p>
+<p><strong>Total Amount:</strong> {{ order.total_amount }}</p>
+
+<h3>Order Lines</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Line Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for line in order_lines %}
+        <tr>
+            <td>{{ line.product.name }}</td>
+            <td>{{ line.product.category.name }}</td>
+            <td>{{ line.quantity }}</td>
+            <td>{{ line.unit_price }}</td>
+            <td>{{ line.line_amount }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

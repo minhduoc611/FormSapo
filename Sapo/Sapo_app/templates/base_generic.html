@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  
+    <style>
+        body, .navbar-light .navbar-brand, .navbar-light .nav-link, .footer {
+            font-family: 'Roboto', sans-serif;
+        }
+        .navbar-light {
+            background-color: #ffffff;
+        }
+        .navbar-light .navbar-brand, .navbar-light .nav-link {
+            color: #000000;
+            font-weight: bold;
+        }
+        .navbar-light .nav-link:hover {
+            text-decoration: underline;
+        }
+        body {
+            background-color: #ffffff; /* Light blue background */
+        }
+        .footer {
+            background-color: #ffffff;
+        }
+        /* Sidebar styles */
+        .wrapper {
+            display: flex;
+            position: relative;
+        }
+        .sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100%;
+            background: #f8f9fa; /* Light gray background */
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .content {
+            margin-left: 250px; /* Same width as sidebar */
+            padding: 20px;
+        }
+        
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Khách hàng
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownAdd">
+                        <a class="dropdown-item" href="{% url 'customer_list' %}">Danh sách khách hàng</a>
+                        <a class="dropdown-item" href="{% url 'segment_list' %}">Danh sách nhóm khách hàng</a>
+                        <!-- Add more add links here -->
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Sản phẩm
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownAdd">
+                        <a class="dropdown-item" href="{% url 'product_list' %}">Danh sách Sản phẩm</a>
+                        <a class="dropdown-item" href="{% url 'category_list' %}">Danh sách loại hàng</a>
+                        <!-- Add more add links here -->
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Đơn hàng
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownAdd">
+                        <a class="dropdown-item" href="{% url 'add_order' %}">Tạo đơn hàng</a>
+                        <a class="dropdown-item" href="{% url 'add_orderline' %}">Thêm dòng đơn hàng</a>
+                        <a class="dropdown-item" href="{% url 'order_list' %}"> Danh sách đơn hàng </a>
+                        <!-- Add more add links here -->
+                    </div>
+                </li>
+                <!-- Add more sidebar links here -->
+                <li class="nav-item">
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Page content -->
+        <div class="content">
+            <header>
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <a class="navbar-brand" href="/">SAPO</a>
+                </nav>
+            </header>
+            <main role="main" class="container mt-4">
+                {% block content %}{% endblock %}
+            </main>
+            <footer class="footer text-center py-3">
+                <div class="container">
+                    <span class="text-muted">&copy; 2023 My Site</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

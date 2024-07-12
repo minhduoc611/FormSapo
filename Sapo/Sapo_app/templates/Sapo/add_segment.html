@@ -1,0 +1,15 @@
+<!-- add_segment.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Thêm Segment{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="mb-4">Thêm Segment Mới</h1>
+    <form method="post" class="needs-validation" novalidate>
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Thêm Segment</button>
+    </form>
+  </div>
+{% endblock %}

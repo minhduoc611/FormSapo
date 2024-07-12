@@ -1,0 +1,37 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Danh sách đơn hàng{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2>Danh sách đơn hàng</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID Đơn hàng</th>
+                <th>Ngày Bán</th>
+                <th>ID Khách Hàng</th>
+                <th>Tên Khách Hàng</th>
+                <th>Tổng Giá trị Bán hàng</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td><a href="{% url 'order_detail' order.id %}">{{ order.id }}</a></td>
+                <td>{{ order.order_date }}</td>
+                <td>{{ order.customer.id }}</td>
+                <td><a href="{% url 'customer_detail' order.customer.id %}">{{ order.customer.name }}</a></td>
+                <td>{{ order.total_amount }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">Không có đơn hàng nào.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
